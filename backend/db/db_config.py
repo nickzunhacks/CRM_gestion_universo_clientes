@@ -11,6 +11,13 @@ engine = create_engine(URL) # crear el motor con segun la DB que depende de la U
 
 def create_all_tables(app: FastAPI):
     SQLModel.metadata.create_all(engine) # crea tablas segun los modelos que tenga table=True
+
+    print("------------------------------------------------| TABLAS |------------------------------------------------")
+    for tabla in SQLModel.metadata.sorted_tables:
+        print(f"\nTabla: {tabla.name}")
+        for columna in tabla.columns:
+            print(f"  - {columna.name}: {columna.type} "
+                  f"(PK={columna.primary_key}, FK={columna.foreign_keys}, nullable={columna.nullable})")
     yield
 
 def get_session() -> Session:
