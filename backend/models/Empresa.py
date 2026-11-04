@@ -1,9 +1,10 @@
 from sqlmodel import SQLModel, Field
 from datetime import date
+from sqlalchemy import UniqueConstraint
 
 
 class Empresa(SQLModel):
-    fecha_registro: date = date.today()
+    fecha_registro: date = Field(default_factory=date.today)
     pais_empresa: int = Field(foreign_key='paisesid.id_pais') # estandarizacion de paises
     tipo_identificacion_empresa: int = Field(foreign_key='tipoidentificacionid.id_tipo_identificacion') # estandarizacion de tipo id de empresa
     numero_identificacion_empresa: int = Field(...)
@@ -11,7 +12,7 @@ class Empresa(SQLModel):
     fecha_inicio_operaciones: date | None = Field(default=None)
     numero_matricula: int | None = Field(default=None)
     estado_legal_empresa: int | None = Field(default=None, foreign_key='estadoslegalesid.id_estado_legal') # estandarizacion de estados legales
-    codigo_ciiu: int | None = Field(default=None, foreign_key='codigociiuid.id_codigo_ciiu') # estandarizacion de codigos ciiu con su descripcion
+    #codigo_ciiu: int | None = Field(default=None, foreign_key='codigociiuid.id_codigo_ciiu') # estandarizacion de codigos ciiu con su descripcion
     industria: int | None = Field(default=None, foreign_key='industriaid.id_industria') # estandarizacion de tipos de industrias
     url_pagina_web: str | None  = Field(default=None)
     direccion_oficina_principal: str | None  = Field(default=None)
@@ -21,5 +22,13 @@ class Empresa(SQLModel):
     activo: bool = Field(default=True) # El registro no se borra, solo se desactiva
     observaciones: str | None = Field(default=None)
 
-class EmpresaId(SQLModel):
+class EmpresaId(Empresa, table=True):
+    __table_args__ = (
+        UniqueConstraint(
+            'pais_empresa',
+            'tipo_identificacion_empresa',
+            'numero_identificacion_empresa',
+            name='identificacion_empresa',
+        ),
+    )
     id_empresa: int | None = Field(default=None, primary_key=True)
