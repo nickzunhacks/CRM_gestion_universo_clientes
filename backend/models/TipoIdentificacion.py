@@ -5,4 +5,5 @@ class TipoIdentificacion(SQLModel):
     nombre_tipo_identificacion: str = Field(...)
 
 class TipoIdentificacionId(TipoIdentificacion, table=True):
+    activo: bool = Field(default=True)
     id_tipo_identificacion: int | None = Field(default=None, primary_key=True)
