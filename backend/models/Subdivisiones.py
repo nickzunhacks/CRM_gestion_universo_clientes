@@ -5,4 +5,5 @@ class Subdivisiones(SQLModel):
     pais: int = Field(foreign_key='paisesid.id_pais')
 
 class SubdivisionesId(Subdivisiones, table=True):
+    activo: bool = Field(default=True)
     id_subdivision: int | None = Field(default=None, primary_key=True)
