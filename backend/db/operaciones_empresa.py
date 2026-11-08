@@ -2,8 +2,12 @@ from sqlmodel import Session
 from backend.models.Empresa import Empresa, EmpresaId
 from backend.db.operaciones_genericas import crear, mostrar_todos, buscar_uno, borrar_uno, mostrar_borrados, restaurar_registro
 
+# operaciones post
+
 async def crear_empresa(empresa: Empresa, session: Session) -> EmpresaId | None:
     return await crear(EmpresaId, empresa, session)
+
+# operaciones get
 
 async def mostrar_una_empresa(id: int, session: Session) -> EmpresaId | None:
     return await buscar_uno(EmpresaId, id, session)
@@ -13,6 +17,8 @@ async def mostrar_empresas(session: Session) -> EmpresaId | None:
 
 async def mostrar_empresas_borradas(session: Session) -> EmpresaId | None:
     return await mostrar_borrados(EmpresaId, session)
+
+# operaciones update
 
 async def borrar_empresa(id: int, session: Session) -> EmpresaId | None:
     return await borrar_uno(EmpresaId, id, session)
