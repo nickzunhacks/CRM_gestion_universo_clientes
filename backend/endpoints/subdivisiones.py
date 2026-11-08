@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from backend.helpers.validaciones_repetitivas import validacion_404, validacion_422
 from backend.models.Subdivisiones import Subdivisiones
-from backend.db.operaciones_subdivisiones import crear_subdivision, mostrar_subdivisiones, mostrar_una_subdivision, mostrar_subdivisiones_borradas, borrar_subdivision, restaurar_subdivision
+from backend.db.operaciones_subdivisiones import crear_subdivision, mostrar_subdivisiones, mostrar_una_subdivision, mostrar_subdivisiones_borradas, borrar_subdivision, restaurar_subdivision, mostrar_subdivisiones_pais
 from backend.db.db_config import Conversation
 
 router = APIRouter()
@@ -19,6 +19,10 @@ async def get_una_subdivision(id: int, session: Conversation):
 @router.get("/subdivisiones-borradas")
 async def get_subdivisiones_borradas(session: Conversation):
     return await mostrar_subdivisiones_borradas(session)
+
+@router.get("/subdivisiones-pais")
+async def get_subdivisiones_pais(pais: int, session: Conversation):
+    return await mostrar_subdivisiones_pais(pais, session)
 
 #-------------------------------------------------------------| POST |-------------------------------------------------------------
 
