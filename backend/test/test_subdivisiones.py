@@ -1,7 +1,18 @@
 from backend.models.Subdivisiones import SubdivisionesId
 from backend.models.Paises import PaisesId
+from endpoints import subdivisiones
+
+"""
+Que se quiere probar:
+    1) validar que el pais al que pertenece la subdivision, si exista
+    2) que al crear una subdivision, se cree con los datos correctos
+    3) que al buscar todas las subdivisiones filtrados por pais, lo haga correctamente
+    4) que al buscar una solo subdivision que no exista, se maneje correctamente el error
+"""
 
 class TestSubdivisiones:
+
+    # 1
 
     def test_pais_no_existente(self, client):
 
@@ -11,7 +22,9 @@ class TestSubdivisiones:
 
         # el manejo de error debe arrojar un codigo 422 de Unprocessable Entity ya que la clave foranea no existe
         assert r.status_code == 422
-        assert r.json()["detail"] == "Alguno de los datos enviados no esta registrado"
+        assert r.json()["detail"] == f"la clave foranea pais no tiene registro con el valor 1"
+
+    # 2
 
     def test_pais_existente(self, client, session):
 
@@ -28,3 +41,41 @@ class TestSubdivisiones:
         assert r.status_code == 200
         assert res["pais"] == 1
         assert res["nombre_subdivision"] == "Cundinamarca"
+
+    # 3
+
+    def test_buscar_subdivisiones_por_pais(self, client, session):
+
+        colombia = PaisesId(nombre_pais="Colombia", nombre_subdivisiones="Departamento")
+        ecuador = PaisesId(nombre_pais="Ecuador", nombre_subdivisiones="Provincia")
+        cundinamarca = SubdivisionesId(nombre_subdivision="Cundinamarca", pais=1)
+        antioquia = SubdivisionesId(nombre_subdivision="Antioquia", pais=1)
+        azuay = SubdivisionesId(nombre_subdivision="Azuay", pais=2)
+        bolivar = SubdivisionesId(nombre_subdivision="Bolivar", pais=2)
+
+        session.add(colombia)
+        session.add(ecuador)
+        session.add(cundinamarca)
+        session.add(antioquia)
+        session.add(azuay)
+        session.add(bolivar)
+        session.commit()
+
+        subdivisiones_colombia = {"pais":1}
+        subdivisiones_ecuador = {"pais":2}
+
+        r = client.get("/subdivisiones-pais", params=subdivisiones_colombia)
+
+        res = r.json()
+
+        assert r.status_code == 200
+        assert res[0]["nombre_subdivision"] == "Cundinamarca"
+        assert res[1]["nombre_subdivision"] == "Antioquia"
+
+        r = client.get("/subdivisiones-pais", params=subdivisiones_ecuador)
+
+        res = r.json()
+
+        assert r.status_code == 200
+        assert res[0]["nombre_subdivision"] == "Azuay"
+        assert res[1]["nombre_subdivision"] == "Bolivar"
