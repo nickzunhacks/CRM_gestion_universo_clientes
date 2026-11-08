@@ -7,7 +7,7 @@ class Empresa(SQLModel):
     fecha_registro: date = Field(default_factory=date.today)
     pais_empresa: int = Field(foreign_key='paisesid.id_pais') # estandarizacion de paises
     tipo_identificacion_empresa: int = Field(foreign_key='tipoidentificacionid.id_tipo_identificacion') # estandarizacion de tipo id de empresa
-    numero_identificacion_empresa: int = Field(...)
+    numero_identificacion_empresa: str = Field(...)
     razon_social: str = Field(...)
     fecha_inicio_operaciones: date | None = Field(default=None)
     numero_matricula: int | None = Field(default=None)

@@ -5,4 +5,5 @@ class Ciudades(SQLModel):
     subdivision: int = Field(foreign_key='subdivisionesid.id_subdivision')
 
 class CiudadesId(Ciudades, table=True):
+    activo: bool = Field(default=True)
     id_ciudad: int | None = Field(default=None, primary_key=True)
