@@ -1,12 +1,17 @@
-from backend.db.operaciones_genericas import crear_con_foreign, mostrar_todos, buscar_uno, borrar_uno, mostrar_borrados, restaurar_registro, mostrar_por_filtro
+from sqlalchemy.exc import IntegrityError
+from backend.db.operaciones_genericas import crear_con_foreign, mostrar_todos, buscar_uno, borrar_uno, mostrar_borrados, restaurar_registro, mostrar_por_filtro_foraneo
 from backend.models.Subdivisiones import Subdivisiones, SubdivisionesId
 from backend.models.Paises import PaisesId
+from backend.ErrorHander import DatosRepetidos
 from sqlmodel import Session
 
 # operaciones post
 
 async def crear_subdivision(subdivision: Subdivisiones, session: Session) -> SubdivisionesId:
-    return await crear_con_foreign(SubdivisionesId, {"pais":PaisesId}, subdivision, session)
+    try:
+        return await crear_con_foreign(SubdivisionesId, {"id_pais":PaisesId}, subdivision, session)
+    except IntegrityError:
+        raise DatosRepetidos([subdivision.nombre_subdivision, subdivision.id_pais])
 
 # operaciones get
 
@@ -20,7 +25,7 @@ async def mostrar_subdivisiones_borradas(session: Session) -> SubdivisionesId:
     return await mostrar_borrados(SubdivisionesId, session)
 
 async def mostrar_subdivisiones_pais(id_pais: int, session: Session) -> SubdivisionesId:
-    return await mostrar_por_filtro(SubdivisionesId, {"pais":id_pais}, session)
+    return await mostrar_por_filtro_foraneo(SubdivisionesId, {id_pais:["id_pais", PaisesId]}, session)
 
 # operaciones update
 

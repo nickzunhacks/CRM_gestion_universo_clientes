@@ -1,6 +1,5 @@
 from sqlmodel import Session, select
-from sqlalchemy import inspect
-from backend.ErrorHander import NoExiste, NoExiteForanea, DatosRepetidos, NoExisteColumna, RegistrosNoBorrados
+from backend.ErrorHander import RegistroBorrado, NoExiteForanea, NoExisteColumna, RegistrosNoBorrados, NoExiste
 
 #-------------------------------------------------------------| POST |-------------------------------------------------------------
 
@@ -29,23 +28,22 @@ async def crear_con_foreign(tabla_guardar, validaciones: dict, datos, session: S
 async def buscar_uno(tabla, id: int, session: Session):
     x = session.get(tabla, id)
     if x and not x.activo:                          #.activo debe estar en todas las tablas, ya que se maneja borrado logico en todas las tablas
-        raise NoExiste(id)
+        raise RegistroBorrado(id)
     return x
 
 async def mostrar_todos(tabla, session: Session):
     return session.exec(select(tabla).where(tabla.activo==True)).all()
 
-async def mostrar_por_filtro(tabla, filtro: dict, session: Session): # dic es un columna:valor el cual es el filtro
-    columnas = tabla.__table__.columns.keys()
+async def mostrar_por_filtro_foraneo(tabla_buscar, filtro: dict, session: Session): # dic es: valor : [columna foranea, tabla (el modelo)]
 
-    invalidos = [column for column in filtro if column not in columnas]
+    # verificar que la categoria de la clave foranea si existe y no esta borrada
 
-    if invalidos:
-        raise NoExisteColumna(invalidos)
+    consulta = select(tabla_buscar).where(tabla_buscar.activo == True)
 
-    consulta = select(tabla).where(tabla.activo == True)
-    for columna, valor in filtro.items():
-        consulta = consulta.where(getattr(tabla, columna) == valor)
+    for valor, foranea in filtro.items():
+        if await buscar_uno(foranea[1], valor, session) is None:
+            raise NoExiste(valor=valor)
+        consulta = consulta.where(getattr(tabla_buscar, foranea[0]) == valor)
 
     return session.exec(consulta).all()
 
@@ -58,7 +56,7 @@ async def borrar_uno(tabla, id: int, session: Session):
     x = await buscar_uno(tabla, id, session)
     if x:
         if not x.activo:
-            raise NoExiste(id)
+            raise RegistroBorrado(id)
         x.activo = False
         session.add(x)
         session.commit()

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from backend.models.Ciudades import Ciudades
 from backend.db.db_config import Conversation
-from backend.db.operaciones_ciudades import crear_ciudad, mostrar_ciudades, mostrar_ciudad, ciudades_borradas, borrar_ciudad, restaurar_ciudad
+from backend.db.operaciones_ciudades import crear_ciudad, mostrar_ciudades, mostrar_ciudad, mostrar_ciudades_por_pais, ciudades_borradas, borrar_ciudad, restaurar_ciudad, mostrar_ciudades_por_subdivision
 from backend.helpers.validaciones_repetitivas import validacion_404
 
 router = APIRouter()
@@ -15,7 +15,15 @@ async def get_ciudades(session: Conversation):
 
 @router.get("/ciudad")
 async def get_ciudad(id: int, session: Conversation):
-    return await validacion_404(await mostrar_ciudad(id, session), "No se encontro esta ciudad")
+    return await mostrar_ciudad(id, session)
+
+@router.get("/ciudades-subdivision")
+async def get_ciudades_subdivision(id: int, session: Conversation):
+    return await mostrar_ciudades_por_subdivision(id, session)
+
+@router.get("/ciudades-pais")
+async def get_ciudades_pais(id: int, session: Conversation):
+    return await mostrar_ciudades_por_pais(id, session)
 
 @router.get("/ciudades-borradas")
 async def get_ciudades_borradas(session: Conversation):

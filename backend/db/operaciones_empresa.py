@@ -1,11 +1,16 @@
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session
 from backend.models.Empresa import Empresa, EmpresaId
 from backend.db.operaciones_genericas import crear, mostrar_todos, buscar_uno, borrar_uno, mostrar_borrados, restaurar_registro
+from backend.ErrorHander import DatosRepetidos
 
 # operaciones post
 
 async def crear_empresa(empresa: Empresa, session: Session) -> EmpresaId | None:
-    return await crear(EmpresaId, empresa, session)
+    try:
+        return await crear(EmpresaId, empresa, session)
+    except IntegrityError:
+        raise DatosRepetidos([empresa.pais_empresa, empresa.tipo_identificacion_empresa, empresa.numero_identificacion_empresa])
 
 # operaciones get
 
