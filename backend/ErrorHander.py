@@ -25,3 +25,8 @@ class RegistrosNoBorrados(ErroresNegocio):
     status_code = 409
     def __init__(self, registro: int):
         super().__init__(f"El registro {registro} no se encuentra borrado")
+
+class RegistroBorrado(ErroresNegocio):
+    status_code = 410
+    def __init__(self, registro: int):
+        super().__init__(f"El registro {registro} se encuentra borrado")
